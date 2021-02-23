@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { apiBaseUrl } from '../constants';
-import { useStateValue } from '../state';
+import { setPatientDetails, useStateValue } from '../state';
 import { Patient } from "../types";
 import { Icon } from "semantic-ui-react";
 
@@ -21,15 +21,15 @@ const PatientDetailsPage: React.FC = () => {
         const { data: patientsDetails } = await axios.get<Patient>(
           `${apiBaseUrl}/patients/${id}`
         );
-        console.log("in useEffect: ", patientsDetails)
-        dispatch({ type: "SET_PATIENTDETAILS", payload: patientsDetails });
+        // console.log("in useEffect: ", patientsDetails)
+        dispatch(setPatientDetails(patientsDetails));
       } catch (e) {
         console.log(e)
       }
     }
     fetchPatient();
 
-  }, [dispatch, id])
+  }, [dispatch, id, patientsDetails])
 
 
   return (
