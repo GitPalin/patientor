@@ -22,6 +22,7 @@ const PatientDetailsPage: React.FC = () => {
           `${apiBaseUrl}/patients/${id}`
         );
         // console.log("in useEffect: ", patientsDetails)
+        // console.log("in useEffect: ", patientsDetails.entries)
         dispatch(setPatientDetails(patientsDetails));
       } catch (e) {
         console.log(e)
@@ -42,6 +43,16 @@ const PatientDetailsPage: React.FC = () => {
       }</h3>
       <p>ssn: {patientsDetails[id]?.ssn}</p>
       <p>occupation: {patientsDetails[id]?.occupation}</p>
+      { patientsDetails[id]?.entries?.map((entry) => (
+        <div key={entry.id}>
+          <p>{entry.date} {entry?.description}</p>
+          <ul>
+            {entry?.diagnosisCodes?.map(code => (
+              <li key={code}>{code}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
   )
 }
