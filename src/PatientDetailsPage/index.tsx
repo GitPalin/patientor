@@ -9,7 +9,7 @@ import { Icon } from "semantic-ui-react";
 
 const PatientDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [{ patientsDetails }, dispatch] = useStateValue();
+  const [{ patientsDetails, diagnoses }, dispatch] = useStateValue();
 
   useEffect(() => {
     if (Object.keys(patientsDetails).includes(id)) {
@@ -48,7 +48,7 @@ const PatientDetailsPage: React.FC = () => {
           <p>{entry.date} {entry?.description}</p>
           <ul>
             {entry?.diagnosisCodes?.map(code => (
-              <li key={code}>{code}</li>
+              <li key={code}>{code}  {diagnoses[code]?.name}</li>
             ))}
           </ul>
         </div>
