@@ -4,7 +4,8 @@ import { useParams } from 'react-router-dom'
 import { apiBaseUrl } from '../constants';
 import { setPatientDetails, useStateValue } from '../state';
 import { Patient } from "../types";
-import { Icon } from "semantic-ui-react";
+import { Card, Icon } from "semantic-ui-react";
+import EntryDetails from '../components/EntryDetails';
 
 
 const PatientDetailsPage: React.FC = () => {
@@ -43,15 +44,16 @@ const PatientDetailsPage: React.FC = () => {
       }</h3>
       <p>ssn: {patientsDetails[id]?.ssn}</p>
       <p>occupation: {patientsDetails[id]?.occupation}</p>
+      <h3>Entries</h3>
       { patientsDetails[id]?.entries?.map((entry) => (
-        <div key={entry.id}>
-          <p>{entry.date} {entry?.description}</p>
+        <Card key={entry.id} style={{ padding: 10 }}>
+          <EntryDetails entry={entry} />
           <ul>
             {entry?.diagnosisCodes?.map(code => (
               <li key={code}>{code}  {diagnoses[code]?.name}</li>
             ))}
           </ul>
-        </div>
+        </Card>
       ))}
     </div>
   )
