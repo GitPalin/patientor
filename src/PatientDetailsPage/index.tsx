@@ -2,15 +2,20 @@ import axios from 'axios';
 import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { apiBaseUrl } from '../constants';
-import { setPatientDetails, useStateValue } from '../state';
-import { Patient } from "../types";
-import { Card, Icon } from "semantic-ui-react";
+import { setPatientDetails, useStateValue, addEntry } from '../state';
+import { Entry, NewEntry, Patient } from "../types";
+import { Button, Card, Icon } from "semantic-ui-react";
 import EntryDetails from '../components/EntryDetails';
+import AddEntryModal from '../AddEntryModal';
+import { EntryFormValues } from '../AddEntryModal/AddEntryForm';
 
 
 const PatientDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [{ patientsDetails, diagnoses }, dispatch] = useStateValue();
+
+  const [modalOpen, setModalOpen] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string | undefined>();
 
   useEffect(() => {
     if (Object.keys(patientsDetails).includes(id)) {
@@ -33,6 +38,27 @@ const PatientDetailsPage: React.FC = () => {
 
   }, [dispatch, id, patientsDetails])
 
+  const openModal = (): void => setModalOpen(true);
+
+  const closeModal = (): void => {
+    setModalOpen(false);
+    setError(undefined);
+  };
+
+
+  const submitNewEntry = async (values: EntryFormValues) => {
+    try {
+      const { data: newEntry } = await axios.post<Entry>(
+        `${apiBaseUrl}/patients/${id}/entries`,
+        values
+      );
+      dispatch(addEntry(id, newEntry));
+      closeModal();
+    } catch (e) {
+      console.error(e.response.data);
+      setError(e.response.data.error);
+    }
+  };
 
   return (
     <div>
@@ -55,6 +81,13 @@ const PatientDetailsPage: React.FC = () => {
           </ul>
         </Card>
       ))}
+      <AddEntryModal
+        modalOpen={modalOpen}
+        onSubmit={submitNewEntry}
+        error={error}
+        onClose={closeModal}
+      />
+      <Button onClick={() => openModal()}>Add New Entry</Button>
     </div>
   )
 }
