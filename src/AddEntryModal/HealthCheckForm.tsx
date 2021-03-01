@@ -3,7 +3,7 @@ import { Grid, Button } from "semantic-ui-react";
 import { Field, Formik, Form } from "formik";
 
 import { DiagnosisSelection, TextField, NumberField } from "./FormField";
-import { NewHealthCheckEntry } from "../types";
+import { EntryType, NewHealthCheckEntry } from "../types";
 import { useStateValue } from "../state";
 
 export type EntryFormValues = NewHealthCheckEntry;
@@ -15,6 +15,18 @@ interface Props {
 
 export const HealthCheckForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
   const [{ diagnoses }] = useStateValue()
+  const isValidDate = (dateStr: any): Boolean => {
+    const regEx = /^\d{4}-\d{2}-\d{2}$/;
+
+    if (!dateStr.match(regEx)) return false;
+
+    let d = new Date(dateStr);
+    let dNum = d.getTime();
+
+    if (!dNum && dNum !== 0) return false;
+
+    return d.toISOString().slice(0, 10) === dateStr;
+  }
 
   return (
     <Formik
@@ -33,11 +45,18 @@ export const HealthCheckForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
         if (!values.description) {
           errors.description = requiredError;
         }
+
         if (!values.date) {
           errors.date = requiredError;
         }
+        if (values.date && !isValidDate(values.date)) {
+          errors.date = "Not a valid date, correct form is: YYYY-MM-DD";
+        }
         if (!values.type) {
           errors.type = requiredError;
+        }
+        if (values.type && !["HealthCheck", "Hospital", "OccupationalHealthcare"].includes(values.type)) {
+          errors.type = "invalid entry type";
         }
         if (!values.specialist) {
           errors.specialist = requiredError;
