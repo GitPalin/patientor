@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { apiBaseUrl } from '../constants';
 import { setPatientDetails, useStateValue, addEntry } from '../state';
-import { Entry, NewEntry, Patient } from "../types";
+import { Entry, Patient } from "../types";
 import { Button, Card, Icon } from "semantic-ui-react";
 import EntryDetails from '../components/EntryDetails';
 import AddEntryModal from '../AddEntryModal';

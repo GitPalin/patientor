@@ -2,30 +2,34 @@ import React from "react";
 import { Grid, Button } from "semantic-ui-react";
 import { Field, Formik, Form } from "formik";
 
-import { TextField, SelectField, EntryTypeOption } from "./FormField";
-import { Entry, EntryType } from "../types";
+import { TextField } from "./FormField";
+import { NewOccupationalHealthcareEntry } from "../types";
 import { DiagnosisSelection } from "../AddPatientModal/FormField";
 import { useStateValue } from "../state";
 
-/*
- * use type Entry, but omit id,
- * because it is irrelevant for new entry object.
- */
-export type EntryFormValues = Omit<Entry, "id">;
+export type EntryFormValues = NewOccupationalHealthcareEntry;
 
 interface Props {
   onSubmit: (values: EntryFormValues) => void;
   onCancel: () => void;
 }
 
-const entryTypeOptions: EntryTypeOption[] = [
-  { value: EntryType.HealthCheck, label: "HealthCheck" },
-  { value: EntryType.Hospital, label: "Hospital" },
-  { value: EntryType.OccupationalHealthcare, label: "OccupationalHealthcare" }
-];
 
 export const OccupationalHealthcareForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
   const [{ diagnoses }] = useStateValue()
+
+  const isValidDate = (dateStr: any): Boolean => {
+    const regEx = /^\d{4}-\d{2}-\d{2}$/;
+
+    if (!dateStr.match(regEx)) return false;
+
+    let d = new Date(dateStr);
+    let dNum = d.getTime();
+
+    if (!dNum && dNum !== 0) return false;
+
+    return d.toISOString().slice(0, 10) === dateStr;
+  }
 
   return (
     <Formik
@@ -33,28 +37,41 @@ export const OccupationalHealthcareForm: React.FC<Props> = ({ onSubmit, onCancel
         description: "",
         date: "",
         specialist: "",
-        diagnosisCodes: [],
-        type: EntryType.HealthCheck,
-        discharge: {
-          date: "",
-          criteria: ""
+        diagnosisCodes: undefined,
+        type: "OccupationalHealthcare",
+        employerName: "",
+        sickLeave: {
+          startDate: "",
+          endDate: ""
         }
       }}
       onSubmit={onSubmit}
       validate={values => {
         const requiredError = "Field is required";
-        const errors: { [field: string]: string } = {};
+        const errors: { [field: string]: string | { [field: string]: string } } = {};
         if (!values.description) {
           errors.description = requiredError;
         }
         if (!values.date) {
           errors.date = requiredError;
         }
+        if (values.date && !isValidDate(values.date)) {
+          errors.date = "Not a valid date, correct form is: YYYY-MM-DD";
+        }
         if (!values.type) {
           errors.type = requiredError;
         }
         if (!values.specialist) {
           errors.specialist = requiredError;
+        }
+        if (!values.employerName) {
+          errors.employerName = requiredError;
+        }
+        if (values.sickLeave && !isValidDate(values.sickLeave.startDate)) {
+          errors.sickLeave = typeof errors.sickLeave === "object" ? { ...errors.sickLeave, startDate: "Not a valid date, correct form is: YYYY-MM-DD" } : { startDate: "Not a valid date, correct form is: YYYY-MM-DD" }
+        }
+        if (values.sickLeave && !isValidDate(values.sickLeave.endDate)) {
+          errors.sickLeave = typeof errors.sickLeave === "object" ? { ...errors.sickLeave, endDate: "Not a valid date, correct form is: YYYY-MM-DD" } : { endDate: "Not a valid date, correct form is: YYYY-MM-DD" }
         }
         return errors;
       }}
@@ -80,10 +97,11 @@ export const OccupationalHealthcareForm: React.FC<Props> = ({ onSubmit, onCancel
               name="specialist"
               component={TextField}
             />
-            <SelectField
-              label="EntryType"
-              name="entrytype"
-              options={entryTypeOptions}
+            <Field
+              label="Employer Name"
+              placeholder="Employer Name"
+              name="employerName"
+              component={TextField}
             />
             <DiagnosisSelection
               setFieldValue={setFieldValue}
@@ -91,15 +109,15 @@ export const OccupationalHealthcareForm: React.FC<Props> = ({ onSubmit, onCancel
               diagnoses={Object.values(diagnoses)}
             />
             <Field
-              label="Criteria"
-              placeholder="Criteria"
-              name="criteria"
+              label="Sick Leave Start Date"
+              placeholder="YYYY-MM-DD"
+              name="sickLeave.startDate"
               component={TextField}
             />
             <Field
-              label="Discharge Date"
+              label="Sick Leave End Date"
               placeholder="YYYY-MM-DD"
-              name="criteria.date"
+              name="sickLeave.endDate"
               component={TextField}
             />
             <Grid>

@@ -3,7 +3,7 @@ import { Grid, Button } from "semantic-ui-react";
 import { Field, Formik, Form } from "formik";
 
 import { DiagnosisSelection, TextField, NumberField } from "./FormField";
-import { EntryType, NewHealthCheckEntry } from "../types";
+import { NewHealthCheckEntry } from "../types";
 import { useStateValue } from "../state";
 
 export type EntryFormValues = NewHealthCheckEntry;

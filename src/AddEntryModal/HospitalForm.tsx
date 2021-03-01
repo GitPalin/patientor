@@ -2,30 +2,33 @@ import React from "react";
 import { Grid, Button } from "semantic-ui-react";
 import { Field, Formik, Form } from "formik";
 
-import { TextField, SelectField, EntryTypeOption } from "./FormField";
-import { Entry, EntryType } from "../types";
+import { TextField } from "./FormField";
+import { NewHospitalEntry } from "../types";
 import { DiagnosisSelection } from "../AddPatientModal/FormField";
 import { useStateValue } from "../state";
 
-/*
- * use type Entry, but omit id,
- * because it is irrelevant for new entry object.
- */
-export type EntryFormValues = Omit<Entry, "id">;
+export type EntryFormValues = NewHospitalEntry;
 
 interface Props {
   onSubmit: (values: EntryFormValues) => void;
   onCancel: () => void;
 }
 
-const entryTypeOptions: EntryTypeOption[] = [
-  { value: EntryType.HealthCheck, label: "HealthCheck" },
-  { value: EntryType.Hospital, label: "Hospital" },
-  { value: EntryType.OccupationalHealthcare, label: "OccupationalHealthcare" }
-];
-
 export const HospitalForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
   const [{ diagnoses }] = useStateValue()
+
+  const isValidDate = (dateStr: any): Boolean => {
+    const regEx = /^\d{4}-\d{2}-\d{2}$/;
+
+    if (!dateStr.match(regEx)) return false;
+
+    let d = new Date(dateStr);
+    let dNum = d.getTime();
+
+    if (!dNum && dNum !== 0) return false;
+
+    return d.toISOString().slice(0, 10) === dateStr;
+  }
 
   return (
     <Formik
@@ -33,8 +36,8 @@ export const HospitalForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
         description: "",
         date: "",
         specialist: "",
-        diagnosisCodes: [],
-        type: EntryType.HealthCheck,
+        diagnosisCodes: undefined,
+        type: "Hospital",
         discharge: {
           date: "",
           criteria: ""
@@ -43,12 +46,15 @@ export const HospitalForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
       onSubmit={onSubmit}
       validate={values => {
         const requiredError = "Field is required";
-        const errors: { [field: string]: string } = {};
+        const errors: { [field: string]: string | { [field: string]: string } } = {};
         if (!values.description) {
           errors.description = requiredError;
         }
         if (!values.date) {
           errors.date = requiredError;
+        }
+        if (values.date && !isValidDate(values.date)) {
+          errors.date = "Not a valid date, correct form is: YYYY-MM-DD";
         }
         if (!values.type) {
           errors.type = requiredError;
@@ -56,6 +62,16 @@ export const HospitalForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
         if (!values.specialist) {
           errors.specialist = requiredError;
         }
+        if (!values.discharge.date) {
+          errors.discharge = typeof errors.discharge === "object" ? { ...errors.discharge, date: requiredError } : { date: requiredError }
+        }
+        if (!values.discharge.criteria) {
+          errors.discharge = typeof errors.discharge === "object" ? { ...errors.discharge, criteria: requiredError } : { criteria: requiredError }
+        }
+        if (values.discharge.date && !isValidDate(values.discharge.date)) {
+          errors.discharge = typeof errors.discharge === "object" ? { ...errors.discharge, date: "Not a valid date, correct form is: YYYY-MM-DD" } : { date: "Not a valid date, correct form is: YYYY-MM-DD" }
+        }
+
         return errors;
       }}
     >
@@ -80,11 +96,6 @@ export const HospitalForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
               name="specialist"
               component={TextField}
             />
-            <SelectField
-              label="EntryType"
-              name="entrytype"
-              options={entryTypeOptions}
-            />
             <DiagnosisSelection
               setFieldValue={setFieldValue}
               setFieldTouched={setFieldTouched}
@@ -93,13 +104,13 @@ export const HospitalForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
             <Field
               label="Criteria"
               placeholder="Criteria"
-              name="criteria"
+              name="discharge.criteria"
               component={TextField}
             />
             <Field
               label="Discharge Date"
               placeholder="YYYY-MM-DD"
-              name="criteria.date"
+              name="discharge.date"
               component={TextField}
             />
             <Grid>

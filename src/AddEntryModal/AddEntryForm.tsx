@@ -28,17 +28,17 @@ export const AddEntryForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
 
   return (
     <div>
-      {/* <select value={entryType} onChange={({ target }) => setEntryType(target.value as EntryType)} className="ui dropdown">
-        {entryTypeOptions.map(option => {
+      <select value={entryType} onChange={({ target }) => setEntryType(target.value as EntryType)} className="ui dropdown">
+        {entryTypeOptions.map(option => (
           <option key={option.value} value={option.value} >
             {option.label}
           </option>
-        })}
+        ))}
       </select>
       {entryType === "HealthCheck" && <HealthCheckForm onSubmit={onSubmit} onCancel={onCancel} />}
       {entryType === "Hospital" && <HospitalForm onSubmit={onSubmit} onCancel={onCancel} />}
-      {entryType === "OccupationalHealthcare" && <OccupationalHealthcareForm onSubmit={onSubmit} onCancel={onCancel} />} */}
-      <HealthCheckForm onSubmit={onSubmit} onCancel={onCancel} />
+      {entryType === "OccupationalHealthcare" && <OccupationalHealthcareForm onSubmit={onSubmit} onCancel={onCancel} />}
+      {/* <HealthCheckForm onSubmit={onSubmit} onCancel={onCancel} /> */}
     </div>
   );
 };

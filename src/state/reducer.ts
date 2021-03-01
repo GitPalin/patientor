@@ -1,5 +1,5 @@
 import { State } from "./state";
-import { Diagnosis, Patient, NewEntry, Entry } from "../types";
+import { Diagnosis, Patient, Entry } from "../types";
 
 export type Action =
   | {
